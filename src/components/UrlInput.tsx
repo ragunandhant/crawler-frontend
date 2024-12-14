@@ -11,7 +11,7 @@ export function URLInput() {
   const { setUrl: setStoreUrl ,setStatus,isProcessing,setIsProcessing} = useUrlStore((state) => state);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if(!isValidURL(url) || isBlockedURL(url)){
+    if(isValidURL(url) || isBlockedURL(url)){
       setStatus('Invalid');
       toast({
         variant: "destructive",
