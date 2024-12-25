@@ -4,12 +4,18 @@ import { Globe, ArrowRight } from 'lucide-react';
 import { useUrlStore } from '@/store/urlstore';
 import { isBlockedURL, isValidURL } from '@/utils';
 import { toast } from '@/hooks/use-toast';
-
+import { CreateTask } from '@/app/playground/api';
+import { TaskType ,CreateTaskResult,TaskResponse} from '@/type';
+import { useAuth } from '@clerk/nextjs';
+import { useTaskResultStore } from '@/store/taskresult';
 
 export function URLInput() {
   const [url, setUrl] = useState('');
+  const {getToken} = useAuth();
   const { setUrl: setStoreUrl ,setStatus,isProcessing,setIsProcessing} = useUrlStore((state) => state);
-  const handleSubmit = (e: React.FormEvent) => {
+  const {setStatus : setTaskStatus,setTaskId,reset} = useTaskResultStore((state) => state);
+  const handleSubmit = async (e: React.FormEvent) => {
+    reset()
     e.preventDefault();
     if(isValidURL(url) || isBlockedURL(url)){
       setStatus('Invalid');
@@ -24,8 +30,35 @@ export function URLInput() {
     setStoreUrl(url);
     setStatus('Valid');
     setIsProcessing(true);
+    const token = await getToken({template:"new"});
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "Failed to get authentication token.  please sign in again.",
+      });
+      setIsProcessing(false);
+      return;
 
-    if (url.trim()) {
+    }
+    const result:CreateTaskResult<TaskResponse>= await CreateTask(url,TaskType.SCARPER,token);
+    if(result.api_status === "failed"){
+      toast({
+        variant: "destructive",
+        title: "Failed to create task",
+        description: `${result.error.message},`,
+      });
+      setIsProcessing(false);
+      return;
+    }
+    else {
+      toast({
+        title: "Task created successfully",
+        description: "Task created successfully.",
+      });
+      setTaskStatus("PENDING")
+      console.log(result.data)
+      setTaskId(result.data.task_id);
       
     }
   };

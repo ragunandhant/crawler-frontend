@@ -4,7 +4,7 @@ import { Bug } from 'lucide-react';
 import { SignInButton, UserButton, useUser } from '@clerk/nextjs';
 
 export function Header() {
-  const {isSignedIn,isLoaded} =  useUser()
+  const {isSignedIn,isLoaded  } =  useUser()
   while (!isLoaded) {
     return <div>Loading...</div>;
   }

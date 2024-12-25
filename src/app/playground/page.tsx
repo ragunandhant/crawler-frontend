@@ -2,10 +2,10 @@
 import Result from '@/components/result/Result';
 import { URLInput } from '@/components/UrlInput';
 import React from 'react';
-import { useUrlStore } from '@/store/urlstore';
+import { useTaskResultStore } from '@/store/taskresult';
 export default function Playground() {
   
-    const status = useUrlStore((state) => state.status);
+    const status = useTaskResultStore((state) => state.status);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -16,7 +16,7 @@ export default function Playground() {
             <h1 className="text-3xl font-bold text-gray-900 mb-6">
             </h1>
             <URLInput/>
-            {status== "Valid" && <Result/>}
+            {status !== "UNINITIALIZED" && <Result/>}
           </div>
         </div>
       </main>
